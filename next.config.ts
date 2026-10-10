@@ -1,12 +1,15 @@
 import type { NextConfig } from "next";
+import { getEnvironment } from "./utils/env";
+
+getEnvironment();
 
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     agentFeedback: true,
   },
-  cacheComponents: true,
-  partialPrefetching: true,
+  // The initial workspace render must include the session's organization.
+  cacheComponents: false,
   turbopack: {
     rules: {
       "*.css": {

@@ -2,21 +2,15 @@ import "server-only";
 
 import { auth } from "@clerk/nextjs/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { getEnvironment } from "@/utils/env";
 
 export async function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!url || !key) {
-    throw new Error(
-      "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local.",
-    );
-  }
-
-  const { getToken } = await auth();
+  const { supabaseUrl, supabaseKey } = getEnvironment();
+  const { getToken, orgId } = await auth.protect();
+  if (!orgId) throw new Error("An active Clerk organization is required to access the database.");
 
   // Keep the client request-scoped and let Clerk supply the current token.
-  return createSupabaseClient(url, key, {
+  return createSupabaseClient(supabaseUrl, supabaseKey, {
     async accessToken() {
       const token = await getToken();
 

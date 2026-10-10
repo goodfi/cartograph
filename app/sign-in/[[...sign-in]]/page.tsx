@@ -3,10 +3,10 @@ import { Suspense } from "react";
 
 export default function SignInPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <main className="auth-screen">
       <Suspense fallback={<p className="text-sm">Loading sign in…</p>}>
         <SignIn />
       </Suspense>
-    </div>
+    </main>
   );
 }

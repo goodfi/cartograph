@@ -1,6 +1,12 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+// Reject signed-out requests before Next can stream any protected HTML.
+export default clerkMiddleware(async (auth, request) => {
+  const path = request.nextUrl.pathname;
+  const isPublic = path === "/sign-in" || path.startsWith("/sign-in/") ||
+    path === "/sign-up" || path.startsWith("/sign-up/") || path.startsWith("/__clerk/");
+  if (!isPublic) await auth.protect();
+}, { signInUrl: "/sign-in", signUpUrl: "/sign-up" });
 
 export const config = {
   matcher: [

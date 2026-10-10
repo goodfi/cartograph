@@ -1,13 +1,35 @@
-﻿export default function Home() {
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import { InviteForm } from "@/app/invite-form";
+
+export default async function Home() {
+  const { orgId, orgSlug, has } = await auth.protect();
+  if (!orgId) {
+    throw new Error("No active organization. In Clerk Organization settings, require membership and enable Create first organization automatically, then sign in again.");
+  }
   return (
-    <main className="flex-1 px-4 py-6 text-sm">
-      <h1 className="font-semibold">Cartograph</h1>
-      <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-        Explore the dependencies of a public GitHub repository.
-      </p>
-      <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-        Use the account controls above to sign in or create an account.
-      </p>
+    <main className="workspace">
+      <div className="workspace-toolbar">
+        <h1>Workspace</h1>
+        <div className="account-controls">
+          <OrganizationSwitcher hidePersonal skipInvitationScreen
+            afterSelectOrganizationUrl="/" afterCreateOrganizationUrl="/"
+            afterLeaveOrganizationUrl="/"
+            organizationProfileMode="navigation" organizationProfileUrl="/team" />
+          <UserButton />
+        </div>
+      </div>
+      <section className="workspace-content" aria-label="Organization workspace">
+        <div className="organization-context">
+          <span className="muted">Current organization</span>
+          <p className="mono">{orgSlug ? `${orgSlug} · ` : ""}{orgId}</p>
+        </div>
+        {has({ role: "org:admin" }) && <InviteForm organizationId={orgId} key={orgId} />}
+        <div className="empty-workspace">
+          <h2>No repository open</h2>
+          <p className="muted">This workspace belongs to your current organization.</p>
+        </div>
+      </section>
     </main>
   );
 }
