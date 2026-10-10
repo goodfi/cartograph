@@ -1,0 +1,3 @@
+minimumReleaseAgeStrict: true
+allowBuilds:
+  unrs-resolver: true
